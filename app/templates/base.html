@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- Подключаем геолокацию -->
+{% include 'includes/geolocation_modal.html' %}
+<script src="{{ url_for('static', filename='js/geolocation.js') }}"></script>
+
+<style>
+.user-location-marker {
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+</style>
+</body>
+</html>

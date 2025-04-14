@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Маршрутизатор Уфы</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        .control-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 1000;
+        width: 320px;
+        font-family: Arial, sans-serif;
+    }
+
+    .control-panel h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        text-align: center;
+        color: #333;
+    }
+
+    .control-panel input {
+        width: calc(100% - 20px);
+        margin: 5px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .control-panel input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .control-panel button {
+        width: 100%;
+        padding: 12px;
+        margin-top:
+    }
+
+    .custom-marker {
+         background-color: red;
+         color: white;
+         text-align: center;
+         font-weight: bold;
+         border-radius: 50%;
+         width: 24px;
+         height: 24px;
+         line-height: 24px;
+         }
+
+
+    input { width: 100%; margin: 5px 0; padding: 8px; }
+    button { width: 100%; padding: 10px; margin-top: 5px; }
+
+    .user-marker {
+         font-size: 24px;
+         animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+         0% { transform: scale(1); }
+         50% { transform: scale(1.2); }
+         100% { transform: scale(1); }
+    }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="control-panel">
+        <input type="text" id="from" placeholder="Откуда">
+        <input type="text" id="to" placeholder="Куда">
+        <button onclick="buildRoute()">Построить маршрут</button>
+        <p id="route-info" style="font-size: 14px; color: #333; margin-top: 10px;"></p>
+    </div>
+
+    <script>
+        // Функция запроса геолокации
+        function requestGeolocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    showUserPosition,
+                    handleGeolocationError,
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                alert("Ваш браузер не поддерживает геолокацию");
+            }
+        }
+
+        // Успешное получение координат
+        function showUserPosition(position) {
+            const userCoords = [position.coords.latitude, position.coords.longitude];
+
+            // Отправляем координаты на сервер (пример для вашего AuthService)
+            fetch('/update-location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    coords: userCoords,
+                    accuracy: position.coords.accuracy
+                })
+            });
+
+            // Отображаем позицию на карте (пример для вашего MapRenderer)
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.marker(userCoords, {
+                icon: L.divIcon({
+                    className: 'user-marker',
+                    html: '📍',
+                    iconSize: [30, 30]
+                })
+            }).addTo(map);
+        }
+
+        // Обработка ошибок
+        function handleGeolocationError(error) {
+            let message = "";
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "Доступ к геолокации запрещен";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "Информация о местоположении недоступна";
+                    break;
+                case error.TIMEOUT:
+                    message = "Время ожидания истекло";
+                    break;
+            }
+            alert("Ошибка: " + message);
+        }
+
+        // Кнопка в интерфейсе (добавьте в ваш control-panel)
+        <button onclick="requestGeolocation()" id="locate-btn">Мое местоположение</button>
+
+        function startNavigation() {
+            watchId = navigator.geolocation.watchPosition(
+                position => {
+                    // Автоматическое перемещение карты
+                    map.panTo([position.coords.latitude, position.coords.longitude]);
+
+                    // Проверка отклонения (интеграция с NavigationSystem)
+                    if (navigationSystem.checkDeviation(position.coords)) {
+                        alert("Вы отклонились от маршрута!");
+                    }
+                },
+                null,
+                { enableHighAccuracy: true }
+        );
+}
+        function buildRoute() {
+            let from = document.getElementById('from').value;
+            let to = document.getElementById('to').value;
+            let infoPanel = document.getElementById('route-info');
+
+            if (!from || !to) {
+                alert("Введите оба адреса");
+                return;
+            }
+
+            // Очищаем прошлые данные
+            if (routeLayer) map.removeLayer(routeLayer);
+            if (fromMarker) map.removeLayer(fromMarker);
+            if (toMarker) map.removeLayer(toMarker);
+
+            infoPanel.style.display = "none"; // Скрываем блок перед загрузкой
+            infoPanel.innerHTML = "⏳ Рассчитываем маршрут...";
+
+            fetch(`/route?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        infoPanel.style.display = "none";
+                        return;
+                    }
+
+                    // Добавляем маркеры сразу
+                    fromMarker = L.marker(data.from_point, { icon: L.divIcon({className: 'marker-A', html: '🅰️', iconSize: [20, 20]}) }).addTo(map);
+                    toMarker = L.marker(data.to_point, { icon: L.divIcon({className: 'marker-B', html: '🅱️', iconSize: [20, 20]}) }).addTo(map);
+
+                    // Рисуем маршрут
+                    routeLayer = L.polyline(data.route, {
+                        color: 'blue',
+                        weight: 5,
+                        opacity: 0.7
+                    }).addTo(map);
+
+                    // Центрируем карту на маршруте
+                    map.fitBounds(routeLayer.getBounds());
+
+                    // Показываем информацию
+                    infoPanel.innerHTML = `🚗 ${data.distance} <br> ⏳ ${data.travel_time}`;
+                    infoPanel.style.display = "block";
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert("Ошибка при построении маршрута");
+                    infoPanel.style.display = "none";
+                });
+        }
+
+
+    </script>
+</body>
+</html>

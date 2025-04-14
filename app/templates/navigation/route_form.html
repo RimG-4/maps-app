@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Определение местоположения</title>
+    <script>
+        // Функция для получения местоположения
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(setLocation, showError);
+            } else {
+                alert("Геолокация не поддерживается этим браузером.");
+            }
+        }
+
+        // Функция для обработки успешного получения координат
+        function setLocation(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Отправляем координаты на сервер для получения адреса
+            fetch(`/get_address?lat=${latitude}&lon=${longitude}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.address) {
+                        document.getElementById("from_address").value = data.address;
+                    }
+                });
+        }
+
+        // Функция для обработки ошибок
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Пользователь отклонил запрос на определение местоположения.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Не удалось определить местоположение.");
+                    break;
+                case error.TIMEOUT:
+                    alert("Превышено время ожидания.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("Неизвестная ошибка.");
+                    break;
+            }
+        }
+
+        // Запуск функции определения местоположения при загрузке страницы
+        window.onload = getLocation;
+    </script>
+</head>
+<body>
+    <h1>Маршрут</h1>
+    <form method="get" action="/route">
+        <label for="from_address">Откуда:</label>
+        <input type="text" id="from_address" name="from" readonly>
+        <br>
+        <label for="to_address">Куда:</label>
+        <input type="text" id="to_address" name="to">
+        <br>
+        <button type="submit">Построить маршрут</button>
+    </form>
+</body>
+</html>
