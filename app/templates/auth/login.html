@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Login</h2>
-  <p>Страница загружается!</p>  <!-- Добавь этот текст -->
+  <h2>Вход</h2>
   <form method="POST">
     {{ form.hidden_tag() }}
     <div>{{ form.username.label }} {{ form.username() }}</div>
     <div>{{ form.password.label }} {{ form.password() }}</div>
-    <div><button type="submit">Login</button></div>
+    <div><button type="submit">Войти</button></div>
   </form>
 {% endblock %}

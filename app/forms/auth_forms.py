@@ -3,10 +3,10 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import InputRequired, Length, EqualTo
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=6)])
-    confirm_password = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password')])
+    username = StringField('Имя', validators=[InputRequired(), Length(min=4, max=20)])
+    password = PasswordField('Пароль', validators=[InputRequired(), Length(min=6)])
+    confirm_password = PasswordField('Подтвердите пароль', validators=[InputRequired(), EqualTo('password')])
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired()])
-    password = PasswordField('Password', validators=[InputRequired()])
+    username = StringField('Имя', validators=[InputRequired()])
+    password = PasswordField('Пароль', validators=[InputRequired()])
