@@ -32,7 +32,7 @@ def login():
         if user:
             login_user(user)
             flash('Login successful!', 'success')
-            return redirect(url_for('home'))
+            return redirect(url_for('navigation.show_map'))
         flash('Invalid credentials!', 'danger')
     return render_template('auth/login.html', form=form)
 

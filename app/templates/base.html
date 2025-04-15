@@ -6,19 +6,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-<!-- Подключаем геолокацию -->
-{% include 'includes/geolocation_modal.html' %}
-<script src="{{ url_for('static', filename='js/geolocation.js') }}"></script>
+    <!-- Блок контента, который вставляется из дочерних шаблонов -->
+    {% block content %}{% endblock %}
 
-<style>
-.user-location-marker {
-    animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-</style>
+    <!-- Подключаем геолокацию -->
+    {% include 'includes/geolocation_modal.html' %}
+    <script src="{{ url_for('static', filename='js/geolocation.js') }}"></script>
+
+    <style>
+    .user-location-marker {
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    </style>
 </body>
 </html>

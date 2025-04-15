@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from app import create_app, db
 from flask_migrate import Migrate, upgrade
 
+
 load_dotenv()
 
 app = create_app()
