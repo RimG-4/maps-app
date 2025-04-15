@@ -25,7 +25,7 @@ def register():
                 return redirect(url_for('auth.register'))
 
             new_user = T_User(login=username)
-            new_user.set_password(password)  # Использует метод модели
+            new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
             flash("Регистрация прошла успешно! Теперь войдите.", "success")
@@ -42,20 +42,13 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-
-        try:
-            user = T_User.query.filter_by(login=username).first()
-            if user and user.check_password(password):
-                login_user(user)
-                flash("Успешный вход!", "success")
-                return redirect(url_for('navigation.map'))
-            else:
-                flash("Неверный логин или пароль", "danger")
-        except Exception as e:
-            current_app.logger.error("Ошибка при входе", exc_info=True)
-            flash("Ошибка сервера при входе", "danger")
+        user = T_User.query.filter_by(login=form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            flash('Вы вошли!', 'success')
+            return redirect(url_for('navigation.map'))
+        else:
+            flash('Неверный логин или пароль', 'danger')
     return render_template('auth/login.html', form=form)
 
 

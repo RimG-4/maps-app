@@ -3,64 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Определение местоположения</title>
-    <script>
-        // Функция для получения местоположения
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(setLocation, showError);
-            } else {
-                alert("Геолокация не поддерживается этим браузером.");
-            }
-        }
-
-        // Функция для обработки успешного получения координат
-        function setLocation(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-
-            // Отправляем координаты на сервер для получения адреса
-            fetch(`/get_address?lat=${latitude}&lon=${longitude}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.address) {
-                        document.getElementById("from_address").value = data.address;
-                    }
-                });
-        }
-
-        // Функция для обработки ошибок
-        function showError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("Пользователь отклонил запрос на определение местоположения.");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("Не удалось определить местоположение.");
-                    break;
-                case error.TIMEOUT:
-                    alert("Превышено время ожидания.");
-                    break;
-                case error.UNKNOWN_ERROR:
-                    alert("Неизвестная ошибка.");
-                    break;
-            }
-        }
-
-        // Запуск функции определения местоположения при загрузке страницы
-        window.onload = getLocation;
-    </script>
+    <title>Построение маршрута</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_route.css') }}"/>
 </head>
 <body>
-    <h1>Маршрут</h1>
-    <form method="get" action="/route">
-        <label for="from_address">Откуда:</label>
-        <input type="text" id="from_address" name="from" readonly>
-        <br>
-        <label for="to_address">Куда:</label>
-        <input type="text" id="to_address" name="to">
-        <br>
-        <button type="submit">Построить маршрут</button>
-    </form>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="route-container">
+                    <h2 class="text-center mb-4">Построение маршрута</h2>
+                    <form id="routeForm">
+                        <div class="mb-3">
+                            <label for="from_address" class="form-label">Откуда:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="from_address" name="from" required>
+                                <span class="input-group-text location-icon" id="getLocationBtn" title="Определить мое местоположение">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="to_address" class="form-label">Куда:</label>
+                            <input type="text" class="form-control" id="to_address" name="to" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Построить маршрут</button>
+                        </div>
+                    </form>
+
+                    <div id="map"></div>
+                    <div id="routeInfo" class="route-info" style="display: none;">
+                        <h5>Информация о маршруте</h5>
+                        <p><strong>Расстояние:</strong> <span id="distance"></span></p>
+                        <p><strong>Время в пути:</strong> <span id="travelTime"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/route.js') }}"></script>
 </body>
 </html>

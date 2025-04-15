@@ -7,17 +7,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 console.log("Текущая позиция:", lat, lon);
 
+                // Сохраняем глобально
+                window.userLocation = { lat, lon };
+
                 L.marker([lat, lon]).addTo(map)
                     .bindPopup(`Вы здесь: ${lat.toFixed(5)}, ${lon.toFixed(5)}`)
                     .openPopup();
 
-                map.setView([lat, lon], 15); // Центрируем карту на пользователя
+                map.setView([lat, lon], 15);
 
-                // Пример запроса адреса
                 fetch(`/get_address?lat=${lat}&lon=${lon}`)
                     .then(response => response.json())
                     .then(data => {
                         alert("Вы находитесь по адресу: " + data.address);
+                        // Сохраняем адрес тоже глобально (по желанию)
+                        window.userAddress = data.address;
                     })
                     .catch(error => console.error("Ошибка при получении адреса:", error));
             },

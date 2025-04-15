@@ -8,6 +8,7 @@ from app.utils.config import Config
 from app.models import T_User
 from app.controllers.navigation_controller import navigation_bp
 from app.controllers.auth_controller import auth_bp
+from app.controllers.route_controller import route_bp
 
 migrate = Migrate()
 login_manager = LoginManager()
@@ -28,6 +29,7 @@ def create_app():
     # Регистрация блюпринтов
     app.register_blueprint(auth_bp)
     app.register_blueprint(navigation_bp, url_prefix='/navigation')
+    app.register_blueprint(route_bp)
 
     @login_manager.user_loader
     def load_user(user_id):
