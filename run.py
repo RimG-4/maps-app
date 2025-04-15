@@ -1,14 +1,16 @@
 from dotenv import load_dotenv
 from app import create_app, db
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 
-
-# Загружаем переменные окружения из файла .env
 load_dotenv()
 
-# Создаём экземпляр приложения
 app = create_app()
+migrate = Migrate(app, db)
+
+def run_with_migrations():
+    with app.app_context():
+        upgrade()
 
 if __name__ == "__main__":
-    # Запускаем приложение в режиме отладки
-    app.run(debug=True)
+    run_with_migrations()
+    app.run(host='0.0.0.0', port=5000, debug=True)
