@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, login_required, logout_user, current_user
-from app import db
 from app.models.user import T_User
 from app.services.auth_service import AuthService
 from app.forms.auth_forms import RegisterForm, LoginForm

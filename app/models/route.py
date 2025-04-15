@@ -1,4 +1,4 @@
-from app import db
+from app.utils.db import db
 
 class T_Route(db.Model):
     __tablename__ = 'T_Route'
