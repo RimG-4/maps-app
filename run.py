@@ -1,5 +1,7 @@
-from app import create_app
 from dotenv import load_dotenv
+from app import create_app, db
+from flask_migrate import Migrate
+
 
 # Загружаем переменные окружения из файла .env
 load_dotenv()

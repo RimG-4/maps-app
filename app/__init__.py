@@ -1,17 +1,26 @@
 from app.models.user import T_User
-from app.models.user import db
 from flask import Flask, redirect, url_for
 from app.controllers.navigation_controller import navigation_bp
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+import os
+import sys
+from app.utils import config
+from app.utils.config import DATABASE_URL
 
+db = SQLAlchemy()
+migrate = Migrate()
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def create_app():
     app = Flask(__name__)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Max.40WSQL@localhost/maps'
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.secret_key = 'your-secret-key'
+    app.secret_key = os.environ.get('SECRET_KEY', 'default-secret')
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
     # импорт моделей после инициализации
     with app.app_context():
