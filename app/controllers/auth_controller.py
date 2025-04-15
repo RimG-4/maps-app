@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, login_required, logout_user, current_user
 from app.models.user import T_User
 from app.services.auth_service import AuthService
+from app.utils.db import db
+from flask import current_app
 from app.forms.auth_forms import RegisterForm, LoginForm
 
 
@@ -15,16 +17,24 @@ def register():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
+
         try:
-            user = auth_service.register_user(username, password)
-            if user:
-                login_user(user)
-                return redirect(url_for('navigation.show_map'))
-            flash('Пользователь уже существует!', 'danger')
+            existing_user = T_User.query.filter_by(login=username).first()
+            if existing_user:
+                flash("Пользователь с таким логином уже существует.", "warning")
+                return redirect(url_for('auth.register'))
+
+            new_user = T_User(login=username)
+            new_user.set_password(password)  # Использует метод модели
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Регистрация прошла успешно! Теперь войдите.", "success")
+            return redirect(url_for('auth.login'))
         except Exception as e:
-            print(f"Ошибка при регистрации: {e}")  # вот это добавь
-            flash('Произошла ошибка при регистрации', 'danger')
+            current_app.logger.error("Ошибка при регистрации", exc_info=True)
+            flash("Произошла ошибка при регистрации. Попробуйте снова.", "danger")
     return render_template('auth/register.html', form=form)
+
 
 
 # Вход
@@ -34,13 +44,20 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = auth_service.login_user(username, password)
-        if user:
-            login_user(user)
-            flash('Успешный вход!', 'success')
-            return redirect(url_for('navigation.show_map'))
-        flash('Неверные данные!', 'danger')
+
+        try:
+            user = T_User.query.filter_by(login=username).first()
+            if user and user.check_password(password):
+                login_user(user)
+                flash("Успешный вход!", "success")
+                return redirect(url_for('navigation.map'))
+            else:
+                flash("Неверный логин или пароль", "danger")
+        except Exception as e:
+            current_app.logger.error("Ошибка при входе", exc_info=True)
+            flash("Ошибка сервера при входе", "danger")
     return render_template('auth/login.html', form=form)
+
 
 # Выход
 @auth_bp.route('/logout')
