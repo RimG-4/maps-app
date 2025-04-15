@@ -8,12 +8,13 @@ class AuthService:
     def register_user(self, username, password):
         existing_user = T_User.query.filter_by(login=username).first()
         if existing_user:
-            return False
+            return None
+
         hashed_password = generate_password_hash(password)
         new_user = T_User(login=username, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return True
+        return new_user
 
     # Вход пользователя
     def login_user(self, username, password):

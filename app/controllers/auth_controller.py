@@ -15,11 +15,17 @@ def register():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        if auth_service.register_user(username, password):
-            flash('Регистрация успешна!', 'success')
-            return redirect(url_for('auth.login'))
-        flash('Такой пользователь уже существует!', 'danger')
+        try:
+            user = auth_service.register_user(username, password)
+            if user:
+                login_user(user)
+                return redirect(url_for('navigation.show_map'))
+            flash('Пользователь уже существует!', 'danger')
+        except Exception as e:
+            print(f"Ошибка при регистрации: {e}")  # вот это добавь
+            flash('Произошла ошибка при регистрации', 'danger')
     return render_template('auth/register.html', form=form)
+
 
 # Вход
 @auth_bp.route('/login', methods=['GET', 'POST'])
