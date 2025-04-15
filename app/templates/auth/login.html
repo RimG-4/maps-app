@@ -8,4 +8,6 @@
     <div>{{ form.password.label }} {{ form.password() }}</div>
     <div><button type="submit">Войти</button></div>
   </form>
+  <p>Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрируйтесь</a></p>
+
 {% endblock %}

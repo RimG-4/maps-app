@@ -16,9 +16,9 @@ def register():
         username = form.username.data
         password = form.password.data
         if auth_service.register_user(username, password):
-            flash('Registration successful!', 'success')
+            flash('Регистрация успешна!', 'success')
             return redirect(url_for('auth.login'))
-        flash('Username already exists!', 'danger')
+        flash('Такой пользователь уже существует!', 'danger')
     return render_template('auth/register.html', form=form)
 
 # Вход
@@ -31,9 +31,9 @@ def login():
         user = auth_service.login_user(username, password)
         if user:
             login_user(user)
-            flash('Login successful!', 'success')
+            flash('Успешный вход!', 'success')
             return redirect(url_for('navigation.show_map'))
-        flash('Invalid credentials!', 'danger')
+        flash('Неверные данные!', 'danger')
     return render_template('auth/login.html', form=form)
 
 # Выход
@@ -41,5 +41,5 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.', 'info')
+    flash('Вы вышли из системы', 'info')
     return redirect(url_for('auth.login'))
