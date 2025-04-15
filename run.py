@@ -6,6 +6,8 @@ import logging
 load_dotenv()
 
 app = create_app()
+app.config['WTF_CSRF_ENABLED'] = False
+
 migrate = Migrate(app, db)
 
 if not app.debug:
