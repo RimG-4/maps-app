@@ -7,9 +7,14 @@ from app.utils import config
 from app.utils.config import DATABASE_URL
 from app.models import *
 from app.utils.db import db
+from flask_login import current_user
+from flask_login import LoginManager
+
 
 migrate = Migrate()
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
@@ -27,9 +32,14 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(navigation_bp, url_prefix='/navigation')
 
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+
     # Роут для главной страницы
     @app.route('/')
     def index():
-        return redirect(url_for('navigation.show_map'))
+        if current_user.is_authenticated:
+            return redirect(url_for('navigation.show_map'))
+        return redirect(url_for('auth.login'))
 
     return app
