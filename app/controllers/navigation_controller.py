@@ -5,7 +5,7 @@ from flask_login import login_required
 navigation_bp = Blueprint('navigation', __name__)
 
 # Роут для отображения карты
-@navigation_bp.route('/map')
 @login_required
+@navigation_bp.route('/map')
 def show_map():
-    return render_template('ufa_map.html')
+    return render_template('navigation/map.html')

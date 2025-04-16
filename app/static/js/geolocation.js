@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+    if (typeof L === 'undefined') {
+        console.error('Карта не открывается!');
+        alert('Ошибка загрузки карты. Пожалуйста, обновите страницу.');
+        return;
+    }
+
+    if (!window.map) {
+        console.warn("Карта ещё не загружена (window.map отсутствует)");
+        return;
+    }
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             position => {
@@ -10,11 +22,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Сохраняем глобально
                 window.userLocation = { lat, lon };
 
-                L.marker([lat, lon]).addTo(map)
+                L.marker([lat, lon]).addTo(window.map)
                     .bindPopup(`Вы здесь: ${lat.toFixed(5)}, ${lon.toFixed(5)}`)
                     .openPopup();
 
-                map.setView([lat, lon], 15);
+                window.map.setView([lat, lon], 15);
 
                 fetch(`/get_address?lat=${lat}&lon=${lon}`)
                     .then(response => response.json())
@@ -33,4 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         alert("Ваш браузер не поддерживает геолокацию.");
     }
+
+
 });

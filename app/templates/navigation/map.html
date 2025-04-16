@@ -1,10 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+  <h2>Карта города Уфа</h2>
+
+  <div id="map" style="height: 100vh;"></div>
+
+  <!-- Подключение Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <!-- Сначала инициализируем карту -->
+  <script>
+    const map = L.map('map').setView([54.7388, 55.9721], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    window.map = map; // делаем глобально доступной
+  </script>
+
+  <!-- Подключаем геолокацию (после инициализации карты!) -->
+  <script src="{{ url_for('static', filename='js/geolocation.js') }}"></script>
+
+{% endblock %}

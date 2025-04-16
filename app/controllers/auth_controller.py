@@ -5,6 +5,8 @@ from app.services.auth_service import AuthService
 from app.utils.db import db
 from flask import current_app
 from app.forms.auth_forms import RegisterForm, LoginForm
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -46,7 +48,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user)
             flash('Вы вошли!', 'success')
-            return redirect(url_for('navigation.map'))
+            return redirect(url_for('navigation.show_map'))
         else:
             flash('Неверный логин или пароль', 'danger')
     return render_template('auth/login.html', form=form)

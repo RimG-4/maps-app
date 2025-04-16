@@ -5,10 +5,14 @@ import os
 import sys
 from app.utils.db import db
 from app.utils.config import Config
-from app.models import T_User
+from app.models.user import T_User
+from app.models.route import T_Route
+from app.models.trip_history import T_TripHistory
+from app.models.traffic_data import T_TrafficData
 from app.controllers.navigation_controller import navigation_bp
 from app.controllers.auth_controller import auth_bp
 from app.controllers.route_controller import route_bp
+from app.controllers.geolocation_controller import geolocation_bp
 
 migrate = Migrate()
 login_manager = LoginManager()
@@ -30,6 +34,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(navigation_bp, url_prefix='/navigation')
     app.register_blueprint(route_bp)
+    app.register_blueprint(geolocation_bp)
 
     @login_manager.user_loader
     def load_user(user_id):

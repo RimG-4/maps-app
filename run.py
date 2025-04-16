@@ -6,7 +6,6 @@ import logging
 load_dotenv()
 
 app = create_app()
-app.config['WTF_CSRF_ENABLED'] = False
 
 migrate = Migrate(app, db)
 
@@ -23,3 +22,5 @@ def run_with_migrations():
 if __name__ == "__main__":
     run_with_migrations()
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
