@@ -32,19 +32,32 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then(response => response.json())
                     .then(data => {
                         alert("Вы находитесь по адресу: " + data.address);
-                        // Сохраняем адрес тоже глобально (по желанию)
                         window.userAddress = data.address;
                     })
                     .catch(error => console.error("Ошибка при получении адреса:", error));
             },
             error => {
-                alert("Не удалось получить ваше местоположение");
-                console.error("Ошибка геолокации:", error);
+                let message = "";
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        message = "Вы запретили доступ к геолокации.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        message = "Информация о местоположении недоступна.";
+                        break;
+                    case error.TIMEOUT:
+                        message = "Истекло время ожидания ответа от службы геолокации.";
+                        break;
+                    default:
+                        message = "Неизвестная ошибка при определении местоположения.";
+                        break;
+                }
+                alert(message);
+                console.error("Ошибка геолокации:", message, error);
             }
         );
     } else {
         alert("Ваш браузер не поддерживает геолокацию.");
     }
-
 
 });

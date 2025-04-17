@@ -1,16 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const fromInput = document.getElementById("from");
-    const toInput = document.getElementById("to");
-    const buildBtn = document.getElementById("build-route");
+    const fromInput = document.getElementById("from_address");
+    const toInput = document.getElementById("to_address");
+    const routeForm = document.getElementById("routeForm");
 
-    buildBtn.addEventListener("click", () => {
-        const from = fromInput.value;
+    routeForm.addEventListener("submit", event => {
+        event.preventDefault(); // Не перезагружаем страницу
+
+        let from = fromInput.value;
         const to = toInput.value;
 
-        let startAddress = from;
-        if (!startAddress && window.userAddress) {
-            startAddress = window.userAddress; // Используем полученный адрес
-            fromInput.value = startAddress; // Автозаполняем поле
+        // Если пользователь разрешил геолокацию — автозаполняем
+        if (!from && window.userAddress) {
+            from = window.userAddress;
+            fromInput.value = from;
         }
 
         fetch('/get_route', {
@@ -18,15 +20,27 @@ document.addEventListener("DOMContentLoaded", () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ from: startAddress, to: to })
+            body: JSON.stringify({ from: from, to: to })
         })
-            .then(response => response.json())
-            .then(data => {
-                // тут код отображения маршрута
-                console.log("Маршрут:", data);
-            })
-            .catch(error => {
-                console.error("Ошибка при построении маршрута:", error);
-            });
+        .then(response => response.json())
+        .then(data => {
+            console.log("Маршрут:", data);
+            // TODO: отобразить маршрут на карте
+        })
+        .catch(error => {
+            console.error("Ошибка при построении маршрута:", error);
+        });
     });
+
+    // Кнопка определения местоположения
+    const getLocationBtn = document.getElementById("getLocationBtn");
+    if (getLocationBtn) {
+        getLocationBtn.addEventListener("click", () => {
+            if (window.userAddress) {
+                fromInput.value = window.userAddress;
+            } else {
+                alert("Геолокация ещё не получена");
+            }
+        });
+    }
 });
