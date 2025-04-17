@@ -3,10 +3,21 @@
 {% block content %}
   <h2 class="mt-3 text-center">Карта города Уфа</h2>
 
-  <div id="map" style="height: 90vh;"></div>
+  <div id="map" style="height: 70vh;"></div>
 
-  <div class="text-center mt-3">
-    <a href="{{ url_for('route.show_form') }}" class="btn btn-outline-primary">Построить маршрут</a>
+  <!-- Форма маршрута -->
+  <div class="container mt-3">
+    <form id="route-form" class="row g-2">
+      <div class="col-md-5">
+        <input type="text" class="form-control" id="from" name="from" placeholder="Откуда">
+      </div>
+      <div class="col-md-5">
+        <input type="text" class="form-control" id="to" name="to" placeholder="Куда" required>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Построить</button>
+      </div>
+    </form>
   </div>
 
   <!-- JS инициализация карты -->
@@ -16,6 +27,61 @@
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
-    window.map = map; // делаем глобально доступной
+    window.map = map;
+
+    let routeLine = null;
+  </script>
+
+  <!-- Геолокация + автозаполнение поля "Откуда" -->
+  <script>
+    navigator.geolocation?.getCurrentPosition(async function(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      L.marker([lat, lng], {
+        icon: L.AwesomeMarkers.icon({
+          icon: 'location-dot',
+          markerColor: 'blue',
+          prefix: 'fa'
+        })
+      }).addTo(map).bindPopup("Вы здесь").openPopup();
+
+      map.setView([lat, lng], 14);
+
+      // Получаем адрес из координат
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+      const data = await res.json();
+      if (data?.display_name) {
+        document.getElementById("from").value = data.display_name;
+      }
+    });
+  </script>
+
+  <!-- Отправка формы -->
+  <script>
+    document.getElementById("route-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const from = document.getElementById("from").value;
+      const to = document.getElementById("to").value;
+
+      const response = await fetch("/get_route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to })
+      });
+
+      const data = await response.json();
+
+      if (data.route && data.route.length > 0) {
+        if (routeLine) {
+          map.removeLayer(routeLine);
+        }
+        routeLine = L.polyline(data.route, { color: 'red' }).addTo(map);
+        map.fitBounds(routeLine.getBounds());
+      } else {
+        alert("Маршрут не найден");
+      }
+    });
   </script>
 {% endblock %}
