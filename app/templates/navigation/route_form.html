@@ -13,33 +13,13 @@
             <div class="col-md-8">
                 <div class="route-container">
                     <h2 class="text-center mb-4">Построение маршрута</h2>
-                    <form id="routeForm">
-                        <div class="mb-3">
-                            <label for="from_address" class="form-label">Откуда:</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="from_address" name="from" required>
-                                <span class="input-group-text location-icon" id="getLocationBtn" title="Определить мое местоположение">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-                                    </svg>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="to_address" class="form-label">Куда:</label>
-                            <input type="text" class="form-control" id="to_address" name="to" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Построить маршрут</button>
-                        </div>
-                    </form>
+                    <div id="map" style="height: 80vh;"></div>
 
-                    <div id="map"></div>
-                    <div id="routeInfo" class="route-info" style="display: none;">
-                        <h5>Информация о маршруте</h5>
-                        <p><strong>Расстояние:</strong> <span id="distance"></span></p>
-                        <p><strong>Время в пути:</strong> <span id="travelTime"></span></p>
+                    <div id="routeInfo" style="display: none; position: absolute; bottom: 20px; left: 20px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 1100;">
+                      <p>Расстояние: <span id="distance">—</span></p>
+                      <p>Время в пути: <span id="travelTime">—</span></p>
                     </div>
+
                 </div>
             </div>
         </div>

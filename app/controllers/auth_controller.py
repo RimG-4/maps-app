@@ -1,18 +1,16 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, login_required, logout_user, current_user
+from flask import Blueprint, render_template, redirect, url_for, flash
+from flask_login import login_user, login_required, logout_user
+from werkzeug.security import generate_password_hash
 from app.models.user import T_User
-from app.services.auth_service import AuthService
 from app.utils.db import db
-from flask import current_app
 from app.forms.auth_forms import RegisterForm, LoginForm
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
-
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
-auth_service = AuthService()
 
-# Регистрация
+
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -23,23 +21,26 @@ def register():
         try:
             existing_user = T_User.query.filter_by(login=username).first()
             if existing_user:
-                flash("Пользователь с таким логином уже существует.", "warning")
-                return redirect(url_for('auth.register'))
+                flash('Этот логин уже занят', 'error')
+                return render_template('auth/register.html', form=form)
 
-            new_user = T_User(login=username)
-            new_user.set_password(password)
+            new_user = T_User(
+                login=username,
+                password=generate_password_hash(password, method='scrypt')
+            )
+
             db.session.add(new_user)
             db.session.commit()
-            flash("Регистрация прошла успешно! Теперь войдите.", "success")
+            flash('Регистрация успешна!', 'success')
             return redirect(url_for('auth.login'))
+
         except Exception as e:
-            current_app.logger.error("Ошибка при регистрации", exc_info=True)
-            flash("Произошла ошибка при регистрации. Попробуйте снова.", "danger")
+            db.session.rollback()
+            flash(f'Ошибка: {str(e)}', 'error')
+
     return render_template('auth/register.html', form=form)
 
 
-
-# Вход
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -54,7 +55,6 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
-# Выход
 @auth_bp.route('/logout')
 @login_required
 def logout():

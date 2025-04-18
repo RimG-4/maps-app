@@ -6,9 +6,10 @@ import sys
 from app.utils.db import db
 from app.utils.config import Config
 from app.models.user import T_User
-from app.models.route import T_Route
-from app.models.trip_history import T_TripHistory
 from app.models.traffic_data import T_TrafficData
+from app.models.feedback import T_Feedback
+from app.models.camera import T_Camera
+from app.models.road_closure import T_RoadClosure
 from app.controllers.navigation_controller import navigation_bp
 from app.controllers.auth_controller import auth_bp
 from app.controllers.route_controller import route_bp
@@ -38,12 +39,19 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return T_User.query.get(int(user_id))
+        return db.session.get(T_User, int(user_id))
 
     @app.route('/')
     def index():
         if current_user.is_authenticated:
             return redirect(url_for('navigation.show_map'))
         return redirect(url_for('auth.login'))
+
+    # Добавляем обработчик для очистки сессий
+    @app.teardown_request
+    def teardown_request(exception):
+        if exception:
+            db.session.rollback()
+        db.session.remove()
 
     return app

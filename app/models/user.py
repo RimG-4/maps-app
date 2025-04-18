@@ -8,9 +8,7 @@ class T_User(db.Model, UserMixin):
 
     userID = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(80), nullable=False, unique=True)
-    password = db.Column(db.String(120), nullable=False)
-
-    trips = db.relationship('T_TripHistory', back_populates='user')
+    password = db.Column(db.String(255), nullable=False)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

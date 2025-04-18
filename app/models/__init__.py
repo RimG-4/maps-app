@@ -1,4 +1,3 @@
 from .user import T_User
-from .trip_history import T_TripHistory
-from .route import T_Route
-from .trip_history import T_TripHistory
+from .traffic_data import T_TrafficData
+from .feedback import T_Feedback
